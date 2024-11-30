@@ -3,7 +3,14 @@ import { v4 as uuidv4 } from "uuid";
 
 const API_BASE_URL = "http://localhost:1222/wizzcloud";
 
-const api = axios.create({
+const apiWithInterceptors = axios.create({              // will use in future for secure api calls
+  baseURL: API_BASE_URL,
+  headers: {
+    "Content-Type": "application/json",
+  },
+});
+
+const apiWithoutInterceptors = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
@@ -29,7 +36,7 @@ const refreshTokens = async () => {
   }
 
   try {
-    const response = await api.post(
+    const response = await apiWithInterceptors.post(
       "/auth/refresh",
       {},
       { headers: { Authorization: `Bearer ${refreshToken}` } }
@@ -46,50 +53,6 @@ const refreshTokens = async () => {
   }
 };
 
-api.interceptors.request.use(
-  (config) => {
-    const token = getAccessToken();
-    if (token) {
-      config.headers["Authorization"] = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
-
-api.interceptors.response.use(
-  (response) => response,
-  async (error) => {
-    const originalRequest = error.config;
-
-    if (
-      error.response?.status === 401 &&
-      originalRequest &&
-      !originalRequest._retry
-    ) {
-      originalRequest._retry = true;
-      try {
-        const newTokens = await refreshTokens();
-        originalRequest.headers["Authorization"] = `Bearer ${newTokens.access_token}`;
-        return api(originalRequest);
-      } catch (refreshError) {
-        console.error("Failed to refresh tokens in interceptor:", refreshError);
-
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        window.location.href = "/signin"
-        return Promise.reject(refreshError);
-      }
-    } else if (error.response?.status === 401 && originalRequest?._retry) {
-      console.error("Request failed after token refresh attempt:", error);
-      return Promise.reject(error);
-    }
-    return Promise.reject(error);
-  }
-);
-
 export const signUp = async (
   fullName: string,
   email: string,
@@ -97,7 +60,7 @@ export const signUp = async (
 ) => {
   try {
     const deviceId = getDeviceId();
-    const response = await api.post("/auth/register", {
+    const response = await apiWithoutInterceptors.post("/auth/register", {
       fullName,
       email,
       password,
@@ -115,7 +78,7 @@ export const signUp = async (
 export const signIn = async (email: string, password: string) => {
   try {
     const deviceId = getDeviceId();
-    const response = await api.post("/auth/login", {
+    const response = await apiWithoutInterceptors.post("/auth/login", {
       email,
       password,
       deviceId,

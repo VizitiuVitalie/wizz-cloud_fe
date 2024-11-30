@@ -14,7 +14,11 @@ const SignUp: React.FC = () => {
     event.preventDefault();
     try {
       const response = await signUp(fullName, email, password);
-      console.log("Registration successful", response.accessToken, response.refreshToken);
+      console.log(
+        "Registration successful",
+        response.accessToken,
+        response.refreshToken
+      );
 
       localStorage.setItem("access_token", response.accessToken);
       localStorage.setItem("refresh_token", response.refreshToken);
@@ -66,7 +70,10 @@ const SignUp: React.FC = () => {
         <button type="submit">Sign Up</button>
       </form>
       <p>
-        Already have an account? <a href="#" onClick={() => navigate("/signin")}>Sign in</a>
+        Already have an account?{" "}
+        <button onClick={() => navigate("/signin")} className="link-button">
+          Sign in
+        </button>
       </p>
     </div>
   );
