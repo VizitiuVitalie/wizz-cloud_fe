@@ -3,7 +3,8 @@ import { v4 as uuidv4 } from "uuid";
 
 const API_BASE_URL = "http://localhost:1222/wizzcloud";
 
-const apiWithInterceptors = axios.create({              // will use in future for secure api calls
+const apiWithInterceptors = axios.create({
+  // will use in future for secure api calls
   baseURL: API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
@@ -88,6 +89,24 @@ export const signIn = async (email: string, password: string) => {
     return { accessToken, refreshToken };
   } catch (error) {
     console.log("signIn error", error);
+    throw error;
+  }
+};
+
+export const getNickname = async (userId: number) => {
+  try {
+    const accessToken = getAccessToken();
+    const response = await apiWithoutInterceptors.get(
+      `/user/fullName/${userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      }
+    );
+    return response.data.nickname;
+  } catch (error) {
+    console.error("Failed to fetch nickname: ", error);
     throw error;
   }
 };

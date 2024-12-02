@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signIn } from "../../api";
+import { getNickname, signIn } from "../../api";
 import "./SignIn.scss";
 
 const SignIn: React.FC = () => {
@@ -21,6 +21,12 @@ const SignIn: React.FC = () => {
 
       localStorage.setItem("access_token", response.accessToken);
       localStorage.setItem("refresh_token", response.refreshToken);
+
+      const decodedToken = JSON.parse(atob(response.accessToken.split(".")[1]));
+      const userId = decodedToken.userId;
+
+      const nickname = await getNickname(userId);
+      localStorage.setItem("nickname", nickname);
 
       navigate("/dashboard");
     } catch (err: any) {
