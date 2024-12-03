@@ -105,6 +105,7 @@ const CloudDashboard: React.FC = () => {
     if (event.target.files && event.target.files.length > 0) {
       const file = event.target.files[0];
       setFileToUpload(file);
+      event.target.value = ""; 
     }
   };
 

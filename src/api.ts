@@ -49,9 +49,11 @@ apiWithInterceptors.interceptors.response.use(
   },
   async (error) => {
     const originalRequest = error.config;
+
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = getRefreshToken();
+      
       if (refreshToken) {
         try {
           const response = await axios.post(
@@ -59,18 +61,24 @@ apiWithInterceptors.interceptors.response.use(
             {},
             { headers: { Authorization: `Bearer ${refreshToken}` } }
           );
-          const newAccessToken = response.data.access_token;
-          const newRefreshToken = response.data.refresh_token;
+
+          const newAccessToken = response.data.accessToken;
+          const newRefreshToken = response.data.refreshToken;
+
           localStorage.setItem("access_token", newAccessToken);
           localStorage.setItem("refresh_token", newRefreshToken);
           originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+
           return axios(originalRequest);
-        } catch (error) {
+        } catch (refreshError) {
           //TODO logout here and redirect to login page
-          // localStorage.removeItem("access_token");
-          // localStorage.removeItem("refresh_token");
-          // window.location.href = "/signin";
-          // console.error("Failed to refresh token:", error);
+          if (axios.isAxiosError(refreshError) && refreshError.response && refreshError.response.status === 401) {
+            localStorage.removeItem("access_token");
+            localStorage.removeItem("refresh_token");
+            window.location.href = "/signin";
+          } else {
+            console.error("Unexpected error during token refresh:", refreshError);
+          }
         }
       }
     }
