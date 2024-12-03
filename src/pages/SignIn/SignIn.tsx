@@ -19,9 +19,6 @@ const SignIn: React.FC = () => {
         response.refreshToken
       );
 
-      localStorage.setItem("access_token", response.accessToken);
-      localStorage.setItem("refresh_token", response.refreshToken);
-
       const decodedToken = JSON.parse(atob(response.accessToken.split(".")[1]));
       const userId = decodedToken.userId;
 

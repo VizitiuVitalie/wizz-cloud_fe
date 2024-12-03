@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
 import "./CloudDashboard.scss";
+import { apiWithInterceptors } from "../../api";
 
 interface CloudFile {
   id: number;
@@ -26,7 +26,7 @@ const CloudDashboard: React.FC = () => {
   const fetchData = async () => {
     try {
       const accessToken = localStorage.getItem("access_token");
-      const response = await axios.get(
+      const response = await apiWithInterceptors.get(
         "http://localhost:1222/wizzcloud/content/list",
         {
           headers: {
@@ -57,7 +57,7 @@ const CloudDashboard: React.FC = () => {
   const handleDeleteFile = async (fileId: number) => {
     try {
       const accessToken = localStorage.getItem("access_token");
-      await axios.delete(`http://localhost:1222/wizzcloud/content/${fileId}`, {
+      await apiWithInterceptors.delete(`http://localhost:1222/wizzcloud/content/${fileId}`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -72,7 +72,7 @@ const CloudDashboard: React.FC = () => {
   const handleDownloadFile = async (fileId: number) => {
     try {
       const accessToken = localStorage.getItem("access_token");
-      const response = await axios.get(
+      const response = await apiWithInterceptors.get(
         `http://localhost:1222/wizzcloud/content/download/${fileId}`,
         {
           headers: {
@@ -117,7 +117,7 @@ const CloudDashboard: React.FC = () => {
         const accessToken = localStorage.getItem("access_token");
         const userId = JSON.parse(atob(accessToken!.split(".")[1])).userId;
 
-        await axios.post(
+        await apiWithInterceptors.post(
           `http://localhost:1222/wizzcloud/content/${userId}`,
           formData,
           {
