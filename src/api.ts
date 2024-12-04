@@ -71,7 +71,6 @@ apiWithInterceptors.interceptors.response.use(
 
           return axios(originalRequest);
         } catch (refreshError) {
-          //TODO logout here and redirect to login page
           if (axios.isAxiosError(refreshError) && refreshError.response && refreshError.response.status === 401) {
             localStorage.removeItem("access_token");
             localStorage.removeItem("refresh_token");

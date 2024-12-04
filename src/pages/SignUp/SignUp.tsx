@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { signUp } from "../../api";
+import { getAccessToken, getNickname, signUp } from "../../api";
 import "./SignUp.scss";
 
 const SignUp: React.FC = () => {
@@ -22,6 +22,10 @@ const SignUp: React.FC = () => {
 
       localStorage.setItem("access_token", response.accessToken);
       localStorage.setItem("refresh_token", response.refreshToken);
+
+      const userId = JSON.parse(atob(getAccessToken()!.split(".")[1])).userId;
+      const nickname = await getNickname(userId);
+      localStorage.setItem("nickname", nickname);
 
       navigate("/dashboard");
     } catch (err: any) {
