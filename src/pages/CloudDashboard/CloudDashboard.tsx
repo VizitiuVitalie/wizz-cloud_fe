@@ -26,7 +26,7 @@ const CloudDashboard: React.FC = () => {
     try {
       const accessToken = localStorage.getItem("access_token");
       const response = await apiWithInterceptors.get(
-        "http://localhost:1222/wizzcloud/content/list",
+        "http://localhost:1222/wizzcloud/content/bucket/list",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
