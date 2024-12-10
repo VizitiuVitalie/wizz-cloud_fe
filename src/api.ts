@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 const API_BASE_URL = "http://localhost:1222/wizzcloud";
 
-export const apiWithInterceptors = axios.create({
+export const apiWithInterceptors = axios.create({ 
   // will use in future for api calls what needs interceptors
   baseURL: API_BASE_URL,
   headers: {
@@ -99,8 +99,7 @@ export const signUp = async (
       deviceId,
     });
     console.log("Server response:", response.data);
-    const { accessToken, refreshToken } = response.data;
-    return { accessToken, refreshToken };
+    return response.data;
   } catch (error) {
     console.log("signUp error", error);
     throw error;

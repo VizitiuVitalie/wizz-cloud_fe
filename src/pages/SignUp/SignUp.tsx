@@ -10,20 +10,29 @@ const SignUp: React.FC = () => {
   const [verificationCode, setVerificationCode] = useState("");
   const [error, setError] = useState("");
   const [isVerificationStep, setIsVerificationStep] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       await signUp(fullName, email, password);
       setIsVerificationStep(true);
     } catch (err: any) {
-      setError(err.message || "registration error");
+      if (err.response && err.response.status === 400) {
+        setError('User with this email already exists');
+      } else {
+        setError(err.message || "registration error");
+      }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const handleVerifyEmail = async (event: React.FormEvent) => {
     event.preventDefault();
+    setIsLoading(true);
     try {
       const deviceId = getDeviceId();
       const response = await verifyEmail(email, verificationCode, deviceId);
@@ -43,6 +52,8 @@ const SignUp: React.FC = () => {
       navigate("/dashboard");
     } catch (err: any) {
       setError(err.message || "verification error");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -85,7 +96,9 @@ const SignUp: React.FC = () => {
               required
             />
           </div>
-          <button type="submit">Sign Up</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Signing Up..." : "Sign Up"}
+          </button>
         </form>
       ) : (
         <form onSubmit={handleVerifyEmail}>
@@ -100,7 +113,9 @@ const SignUp: React.FC = () => {
               required
             />
           </div>
-          <button type="submit">Verify Email</button>
+          <button type="submit" disabled={isLoading}>
+            {isLoading ? "Verifying..." : "Verify Email"}
+          </button>
         </form>
       )}
       <p>
