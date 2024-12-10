@@ -23,6 +23,7 @@
   },
   "scripts": {
     "start": "react-scripts start",
+    "start:dev:nodemon": "nodemon --watch src --exec \"npm start\"",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -47,6 +48,7 @@
   },
   "devDependencies": {
     "@types/jwt-decode": "^2.2.1",
-    "@types/react-router-dom": "^5.3.3"
+    "@types/react-router-dom": "^5.3.3",
+    "nodemon": "^3.1.7"
   }
 }

@@ -6,12 +6,13 @@ WORKDIR /app
 COPY package*.json ./
 
 RUN npm install
+RUN npm install nodemon --save-dev
 
 COPY . .
 
 EXPOSE 3000
 
-CMD ["npm", "start"]
+CMD ["npm", "run", "start:dev:nodemon"]
 
 # Stage 2: Production
 FROM node:18 AS production
