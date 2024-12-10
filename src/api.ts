@@ -18,7 +18,7 @@ export const apiWithoutInterceptors = axios.create({
   },
 });
 
-const getDeviceId = () => {
+export const getDeviceId = () => {
   let deviceId = localStorage.getItem("device_id");
   if (!deviceId) {
     deviceId = uuidv4();
@@ -103,6 +103,22 @@ export const signUp = async (
     return { accessToken, refreshToken };
   } catch (error) {
     console.log("signUp error", error);
+    throw error;
+  }
+};
+
+export const verifyEmail = async (email: string, code: string, deviceId: string) => {
+  try {
+    const response = await apiWithoutInterceptors.post("/auth/verify-email", {
+      email,
+      code,
+      deviceId,
+    });
+    console.log("Server response:", response.data);
+    const { accessToken, refreshToken } = response.data;
+    return { accessToken, refreshToken };
+  } catch (error) {
+    console.log("verifyEmail error", error);
     throw error;
   }
 };
