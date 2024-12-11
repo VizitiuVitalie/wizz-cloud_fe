@@ -5,7 +5,9 @@ import { apiWithInterceptors } from "../../api";
 interface CloudFile {
   id: number;
   userId: number;
+  name: string;
   type: string;
+  fileKey: string;
   url: string;
   size: number;
   createdAt: string;
@@ -20,21 +22,40 @@ const CloudDashboard: React.FC = () => {
   const [fileToUpload, setFileToUpload] = useState<globalThis.File | null>(
     null
   );
+  const [isLoading, setIsLoading] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const fetchData = async () => {
     try {
       const accessToken = localStorage.getItem("access_token");
-      const response = await apiWithInterceptors.get(
-        "http://localhost:1222/wizzcloud/content/bucket/list",
+      const getMetadata = await apiWithInterceptors.get(
+        "http://localhost:1222/wizzcloud/content/metadata/list",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-      console.log("Server response:", response.data);
-      setFiles(response.data || []);
+      const filesData = getMetadata.data || [];
+
+      const filesWithUrls = await Promise.all(
+        filesData.map(async (file: CloudFile) => {
+          const fileResponse = await apiWithInterceptors.get(
+            `http://localhost:1222/wizzcloud/content/bucket/file/${file.fileKey}`,
+            {
+              headers: {
+                Authorization: `Bearer ${accessToken}`,
+              },
+              responseType: "blob",
+            }
+          );
+
+          const url = window.URL.createObjectURL(fileResponse.data);
+          return { ...file, url };
+        })
+      );
+
+      setFiles(filesWithUrls);
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setError("Failed to fetch data");
@@ -50,6 +71,9 @@ const CloudDashboard: React.FC = () => {
   };
 
   const handleCloseFile = () => {
+    if (selectedFile?.url) {
+      window.URL.revokeObjectURL(selectedFile.url);
+    }
     setSelectedFile(null);
   };
 
@@ -71,11 +95,11 @@ const CloudDashboard: React.FC = () => {
     }
   };
 
-  const handleDownloadFile = async (fileId: number) => {
+  const handleDownloadFile = async (fileKey: string, fileName: string) => {
     try {
       const accessToken = localStorage.getItem("access_token");
       const response = await apiWithInterceptors.get(
-        `http://localhost:1222/wizzcloud/content/download/${fileId}`,
+        `http://localhost:1222/wizzcloud/content/bucket/file/${fileKey}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -83,11 +107,6 @@ const CloudDashboard: React.FC = () => {
           responseType: "blob",
         }
       );
-
-      const contentDisposition = response.headers["content-disposition"];
-      const fileName = contentDisposition
-        ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
-        : `file_${fileId}`;
 
       const url = window.URL.createObjectURL(response.data);
       const link = document.createElement("a");
@@ -116,6 +135,7 @@ const CloudDashboard: React.FC = () => {
       const formData = new FormData();
       formData.append("files", fileToUpload);
 
+      setIsLoading(true);
       try {
         const accessToken = localStorage.getItem("access_token");
         const userId = JSON.parse(atob(accessToken!.split(".")[1])).userId;
@@ -137,6 +157,8 @@ const CloudDashboard: React.FC = () => {
       } catch (error) {
         console.error("Failed to upload file:", error);
         setError("Failed to upload file");
+      } finally {
+        setIsLoading(false);
       }
     }
   };
@@ -220,21 +242,23 @@ const CloudDashboard: React.FC = () => {
       {fileToUpload && (
         <div className="file-upload-actions">
           <p>Selected file: {fileToUpload.name}</p>
-          <button onClick={handleFileUpload}>Upload</button>
+          <button onClick={handleFileUpload} disabled={isLoading}>
+            {isLoading ? "Uploading..." : "Upload"}
+          </button>
           <button onClick={handleCancelUpload}>Cancel</button>
         </div>
       )}
       <div className="gallery">
         {files.length > 0 ? (
           files.map((file) => (
-            <div key={file.id} className="gallery-item">
+            <div key={file.fileKey} className="gallery-item">
               <img
                 src={file.url}
                 alt="file"
                 onClick={() => handleOpenFile(file)}
               />
               <div className="gallery-item-actions">
-                <button onClick={() => handleDownloadFile(file.id)}>
+                <button onClick={() => handleDownloadFile(file.fileKey, file.name)}>
                   Download
                 </button>
                 <button onClick={() => handleDeleteFile(file.id)}>
@@ -254,10 +278,15 @@ const CloudDashboard: React.FC = () => {
           </span>
           <img className="modal-content" src={selectedFile.url} alt="file" />
           <div className="modal-actions">
-            <button onClick={() => handleDownloadFile(selectedFile.id)}>
+            <button onClick={() => handleDownloadFile(selectedFile.fileKey, selectedFile.name)}>
               Download
             </button>
-            <button onClick={() => handleDeleteFile(selectedFile.id)}>
+            <button
+              onClick={() => {
+                handleDeleteFile(selectedFile.id);
+                handleCloseFile();
+              }}
+            >
               Delete
             </button>
           </div>
