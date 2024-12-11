@@ -40,6 +40,13 @@ const CloudDashboard: React.FC = () => {
 
       const filesWithUrls = await Promise.all(
         filesData.map(async (file: CloudFile) => {
+          
+          //verifying if the file is cached in localStorage
+          const cachedUrl = localStorage.getItem(file.fileKey);
+          if (cachedUrl) {
+            return { ...file, url: cachedUrl };
+          }
+
           const fileResponse = await apiWithInterceptors.get(
             `http://localhost:1222/wizzcloud/content/bucket/file/${file.fileKey}`,
             {
@@ -51,6 +58,7 @@ const CloudDashboard: React.FC = () => {
           );
 
           const url = window.URL.createObjectURL(fileResponse.data);
+          localStorage.setItem(file.fileKey, url); // Cahsing URL in localStorage
           return { ...file, url };
         })
       );
@@ -256,9 +264,12 @@ const CloudDashboard: React.FC = () => {
                 src={file.url}
                 alt="file"
                 onClick={() => handleOpenFile(file)}
+                loading="lazy"
               />
               <div className="gallery-item-actions">
-                <button onClick={() => handleDownloadFile(file.fileKey, file.name)}>
+                <button
+                  onClick={() => handleDownloadFile(file.fileKey, file.name)}
+                >
                   Download
                 </button>
                 <button onClick={() => handleDeleteFile(file.id)}>
@@ -278,7 +289,11 @@ const CloudDashboard: React.FC = () => {
           </span>
           <img className="modal-content" src={selectedFile.url} alt="file" />
           <div className="modal-actions">
-            <button onClick={() => handleDownloadFile(selectedFile.fileKey, selectedFile.name)}>
+            <button
+              onClick={() =>
+                handleDownloadFile(selectedFile.fileKey, selectedFile.name)
+              }
+            >
               Download
             </button>
             <button
