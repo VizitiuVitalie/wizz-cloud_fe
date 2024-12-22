@@ -40,14 +40,7 @@ const CloudDashboard: React.FC = () => {
 
       const filesWithUrls = await Promise.all(
         filesData.map(async (file: CloudFile) => {
-          
-          //verifying if the file is cached in localStorage
-          const cachedUrl = localStorage.getItem(file.fileKey);
-          if (cachedUrl) {
-            return { ...file, url: cachedUrl };
-          }
-
-          const fileResponse = await apiWithInterceptors.get(
+          await apiWithInterceptors.get(
             `http://localhost:1222/wizzcloud/content/bucket/file/${file.fileKey}`,
             {
               headers: {
@@ -57,9 +50,7 @@ const CloudDashboard: React.FC = () => {
             }
           );
 
-          const url = window.URL.createObjectURL(fileResponse.data);
-          localStorage.setItem(file.fileKey, url); // Cahsing URL in localStorage
-          return { ...file, url };
+          return { ...file };
         })
       );
 
@@ -223,27 +214,29 @@ const CloudDashboard: React.FC = () => {
 
   return (
     <div className="cloud-dashboard">
-      <h1>Cloud Dashboard</h1>
-      <p>Welcome, {nickname}!</p>
-      {error && <p className="error">{error}</p>}
-      <div
-        className="hamburger-menu"
-        onClick={() => setIsMenuOpen(!isMenuOpen)}
-      >
-        <div className="line"></div>
-        <div className="line"></div>
-        <div className="line"></div>
-      </div>
-
-      {isMenuOpen && (
-        <div className="dropdown-menu">
-          <button onClick={handleLogout}>Logout</button>
-          <button onClick={handleDeleteAccount}>Delete Account</button>
+      <header className="header">
+        <h1>Cloud Dashboard</h1>
+        <p>Welcome, {nickname}!</p>
+        {error && <p className="error">{error}</p>}
+        <div
+          className="hamburger-menu"
+          onClick={() => setIsMenuOpen(!isMenuOpen)}
+        >
+          <div className="line"></div>
+          <div className="line"></div>
+          <div className="line"></div>
         </div>
-      )}
-      <div className="upload-button">
+        {isMenuOpen && (
+          <div className="dropdown-menu">
+            <button onClick={handleLogout}>Logout</button>
+            <button onClick={handleDeleteAccount}>Delete Account</button>
+          </div>
+        )}
+      </header>
+      <div className="upload-section">
         <label htmlFor="file-upload" className="custom-file-upload">
-          +
+          <img src="/images/upload-icon.png" alt="Upload" />
+          <span>Upload File</span>
         </label>
         <input id="file-upload" type="file" onChange={handleFileSelect} />
       </div>
@@ -270,10 +263,10 @@ const CloudDashboard: React.FC = () => {
                 <button
                   onClick={() => handleDownloadFile(file.fileKey, file.name)}
                 >
-                  Download
+                  <img src="/images/download-icon.png" alt="Download" />
                 </button>
                 <button onClick={() => handleDeleteFile(file.id)}>
-                  Delete
+                  <img src="/images/delete-icon.png" alt="Delete" />
                 </button>
               </div>
             </div>
@@ -294,7 +287,7 @@ const CloudDashboard: React.FC = () => {
                 handleDownloadFile(selectedFile.fileKey, selectedFile.name)
               }
             >
-              Download
+              <img src="/images/download-icon.png" alt="Download" />
             </button>
             <button
               onClick={() => {
@@ -302,7 +295,7 @@ const CloudDashboard: React.FC = () => {
                 handleCloseFile();
               }}
             >
-              Delete
+              <img src="/images/delete-icon.png" alt="Delete" />
             </button>
           </div>
         </div>
