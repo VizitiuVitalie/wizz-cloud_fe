@@ -8,7 +8,8 @@ interface CloudFile {
   name: string;
   type: string;
   fileKey: string;
-  url: string;
+  presignedUrl: string;
+  contentPath: string;
   size: number;
   createdAt: string;
   updatedAt: string;
@@ -28,33 +29,16 @@ const CloudDashboard: React.FC = () => {
   const fetchData = async () => {
     try {
       const accessToken = localStorage.getItem("access_token");
-      const getMetadata = await apiWithInterceptors.get(
-        "http://localhost:1222/wizzcloud/content/metadata/list",
+      const response = await apiWithInterceptors.get(
+        "http://localhost:1222/wizzcloud/content/bucket/list",
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
           },
         }
       );
-      const filesData = getMetadata.data || [];
-
-      const filesWithUrls = await Promise.all(
-        filesData.map(async (file: CloudFile) => {
-          await apiWithInterceptors.get(
-            `http://localhost:1222/wizzcloud/content/bucket/file/${file.fileKey}`,
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-              responseType: "blob",
-            }
-          );
-
-          return { ...file };
-        })
-      );
-
-      setFiles(filesWithUrls);
+      const filesData = response.data || [];
+      setFiles(filesData);
     } catch (error) {
       console.error("Failed to fetch data:", error);
       setError("Failed to fetch data");
@@ -63,6 +47,8 @@ const CloudDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
+    const interval = setInterval(fetchData, 60000); // Fetch data every minute
+    return () => clearInterval(interval);
   }, []);
 
   const handleOpenFile = (file: CloudFile) => {
@@ -70,9 +56,6 @@ const CloudDashboard: React.FC = () => {
   };
 
   const handleCloseFile = () => {
-    if (selectedFile?.url) {
-      window.URL.revokeObjectURL(selectedFile.url);
-    }
     setSelectedFile(null);
   };
 
@@ -88,17 +71,19 @@ const CloudDashboard: React.FC = () => {
         }
       );
       setFiles(files.filter((file) => file.id !== fileId));
+      handleCloseFile();
+      fetchData(); // Обновляем данные после удаления файла
     } catch (error) {
       console.error("Failed to delete file:", error);
       setError("Failed to delete file");
     }
   };
 
-  const handleDownloadFile = async (fileKey: string, fileName: string) => {
+  const handleDownloadFile = async (fileId: number) => {
     try {
       const accessToken = localStorage.getItem("access_token");
       const response = await apiWithInterceptors.get(
-        `http://localhost:1222/wizzcloud/content/bucket/file/${fileKey}`,
+        `http://localhost:1222/wizzcloud/content/download/${fileId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -107,7 +92,15 @@ const CloudDashboard: React.FC = () => {
         }
       );
 
-      const url = window.URL.createObjectURL(response.data);
+      const contentDisposition = response.headers["content-disposition"];
+      const fileName = contentDisposition
+        ? contentDisposition.split("filename=")[1]?.replace(/"/g, "")
+        : `file_${fileId}`;
+
+      const url = window.URL.createObjectURL(
+        new Blob([response.data], { type: response.headers["content-type"] })
+      );
+
       const link = document.createElement("a");
       link.href = url;
       link.setAttribute("download", fileName);
@@ -152,7 +145,7 @@ const CloudDashboard: React.FC = () => {
 
         setFileToUpload(null);
 
-        await fetchData();
+        await fetchData(); // Обновляем данные после загрузки файла
       } catch (error) {
         console.error("Failed to upload file:", error);
         setError("Failed to upload file");
@@ -254,15 +247,13 @@ const CloudDashboard: React.FC = () => {
           files.map((file) => (
             <div key={file.fileKey} className="gallery-item">
               <img
-                src={file.url}
-                alt="file"
+                src={file.presignedUrl}
+                alt={file.name}
                 onClick={() => handleOpenFile(file)}
                 loading="lazy"
               />
               <div className="gallery-item-actions">
-                <button
-                  onClick={() => handleDownloadFile(file.fileKey, file.name)}
-                >
+                <button onClick={() => handleDownloadFile(file.id)}>
                   <img src="/images/download-icon.png" alt="Download" />
                 </button>
                 <button onClick={() => handleDeleteFile(file.id)}>
@@ -280,13 +271,13 @@ const CloudDashboard: React.FC = () => {
           <span className="close" onClick={handleCloseFile}>
             &times;
           </span>
-          <img className="modal-content" src={selectedFile.url} alt="file" />
+          <img
+            className="modal-content"
+            src={selectedFile.presignedUrl}
+            alt={selectedFile.name}
+          />
           <div className="modal-actions">
-            <button
-              onClick={() =>
-                handleDownloadFile(selectedFile.fileKey, selectedFile.name)
-              }
-            >
+            <button onClick={() => handleDownloadFile(selectedFile.id)}>
               <img src="/images/download-icon.png" alt="Download" />
             </button>
             <button
