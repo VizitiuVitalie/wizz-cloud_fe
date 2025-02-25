@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import "./CloudDashboard.scss";
 import { apiWithInterceptors } from "../../api";
+import BASE_URL from "../../config";
 
 interface CloudFile {
   id: number;
@@ -30,7 +31,7 @@ const CloudDashboard: React.FC = () => {
     try {
       const accessToken = localStorage.getItem("access_token");
       const response = await apiWithInterceptors.get(
-        "http://localhost:1222/wizzcloud/content/bucket/list",
+        `${BASE_URL}/content/bucket/list`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -63,7 +64,7 @@ const CloudDashboard: React.FC = () => {
     try {
       const accessToken = localStorage.getItem("access_token");
       await apiWithInterceptors.delete(
-        `http://localhost:1222/wizzcloud/content/${fileId}`,
+        `${BASE_URL}/content/${fileId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -83,7 +84,7 @@ const CloudDashboard: React.FC = () => {
     try {
       const accessToken = localStorage.getItem("access_token");
       const response = await apiWithInterceptors.get(
-        `http://localhost:1222/wizzcloud/content/download/${fileId}`,
+        `${BASE_URL}/content/download/${fileId}`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -126,6 +127,7 @@ const CloudDashboard: React.FC = () => {
     if (fileToUpload) {
       const formData = new FormData();
       formData.append("files", fileToUpload);
+      console.log("Uploading file:", fileToUpload);
 
       setIsLoading(true);
       try {
@@ -133,7 +135,7 @@ const CloudDashboard: React.FC = () => {
         const userId = JSON.parse(atob(accessToken!.split(".")[1])).userId;
 
         await apiWithInterceptors.post(
-          `http://localhost:1222/wizzcloud/content/${userId}`,
+          `${BASE_URL}/content/${userId}`,
           formData,
           {
             headers: {
@@ -163,7 +165,7 @@ const CloudDashboard: React.FC = () => {
     try {
       const accessToken = localStorage.getItem("access_token");
       await apiWithInterceptors.post(
-        "http://localhost:1222/wizzcloud/auth/logout",
+        `${BASE_URL}/auth/logout`,
         {},
         {
           headers: {
@@ -187,7 +189,7 @@ const CloudDashboard: React.FC = () => {
         const userId = JSON.parse(atob(accessToken!.split(".")[1])).userId;
 
         await apiWithInterceptors.delete(
-          `http://localhost:1222/wizzcloud/user/${userId}`,
+          `${BASE_URL}/user/${userId}`,
           {
             headers: {
               Authorization: `Bearer ${accessToken}`,

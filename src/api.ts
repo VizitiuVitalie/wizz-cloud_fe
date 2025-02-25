@@ -1,18 +1,17 @@
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
-const API_BASE_URL = "http://localhost:1222/wizzcloud";
+import BASE_URL from "./config";
 
 export const apiWithInterceptors = axios.create({ 
   // will use in future for api calls what needs interceptors
-  baseURL: API_BASE_URL,
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
 });
 
 export const apiWithoutInterceptors = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
@@ -57,7 +56,7 @@ apiWithInterceptors.interceptors.response.use(
       if (refreshToken) {
         try {
           const response = await axios.post(
-            `${API_BASE_URL}/auth/refresh`,
+            `${BASE_URL}/auth/refresh`,
             {},
             { headers: { Authorization: `Bearer ${refreshToken}` } }
           );
