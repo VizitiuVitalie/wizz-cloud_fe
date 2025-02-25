@@ -48,7 +48,7 @@ const CloudDashboard: React.FC = () => {
 
   useEffect(() => {
     fetchData();
-    const interval = setInterval(fetchData, 60000); // Fetch data every minute
+    const interval = setInterval(fetchData, 150000); // Fetch data every 2.5 minutes
     return () => clearInterval(interval);
   }, []);
 
@@ -73,7 +73,7 @@ const CloudDashboard: React.FC = () => {
       );
       setFiles(files.filter((file) => file.id !== fileId));
       handleCloseFile();
-      fetchData(); // Обновляем данные после удаления файла
+      fetchData();
     } catch (error) {
       console.error("Failed to delete file:", error);
       setError("Failed to delete file");
@@ -129,10 +129,14 @@ const CloudDashboard: React.FC = () => {
       formData.append("files", fileToUpload);
       console.log("Uploading file:", fileToUpload);
 
+      console.log("Uploading file(front):", fileToUpload);
+
       setIsLoading(true);
       try {
         const accessToken = localStorage.getItem("access_token");
         const userId = JSON.parse(atob(accessToken!.split(".")[1])).userId;
+
+        console.log("FormData:", formData);
 
         await apiWithInterceptors.post(
           `${BASE_URL}/content/${userId}`,
@@ -248,12 +252,26 @@ const CloudDashboard: React.FC = () => {
         {files.length > 0 ? (
           files.map((file) => (
             <div key={file.fileKey} className="gallery-item">
-              <img
-                src={file.presignedUrl}
-                alt={file.name}
-                onClick={() => handleOpenFile(file)}
-                loading="lazy"
-              />
+              {file.type.startsWith("video/") ? (
+                <video
+                  src={file.presignedUrl}
+                  controls
+                  onClick={() => handleOpenFile(file)}
+                />
+              ) : file.type.startsWith("audio/") ? (
+                <audio
+                  src={file.presignedUrl}
+                  controls
+                  onClick={() => handleOpenFile(file)}
+                />
+              ) : (
+                <img
+                  src={file.presignedUrl}
+                  alt={file.name}
+                  onClick={() => handleOpenFile(file)}
+                  loading="lazy"
+                />
+              )}
               <div className="gallery-item-actions">
                 <button onClick={() => handleDownloadFile(file.id)}>
                   <img src="/images/download-icon.png" alt="Download" />
@@ -273,11 +291,25 @@ const CloudDashboard: React.FC = () => {
           <span className="close" onClick={handleCloseFile}>
             &times;
           </span>
-          <img
-            className="modal-content"
-            src={selectedFile.presignedUrl}
-            alt={selectedFile.name}
-          />
+          {selectedFile.type.startsWith("video/") ? (
+            <video
+              className="modal-content"
+              src={selectedFile.presignedUrl}
+              controls
+            />
+          ) : selectedFile.type.startsWith("audio/") ? (
+            <audio
+              className="modal-content"
+              src={selectedFile.presignedUrl}
+              controls
+            />
+          ) : (
+            <img
+              className="modal-content"
+              src={selectedFile.presignedUrl}
+              alt={selectedFile.name}
+            />
+          )}
           <div className="modal-actions">
             <button onClick={() => handleDownloadFile(selectedFile.id)}>
               <img src="/images/download-icon.png" alt="Download" />
