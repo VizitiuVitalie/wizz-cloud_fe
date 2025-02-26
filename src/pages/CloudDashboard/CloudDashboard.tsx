@@ -63,14 +63,11 @@ const CloudDashboard: React.FC = () => {
   const handleDeleteFile = async (fileId: number) => {
     try {
       const accessToken = localStorage.getItem("access_token");
-      await apiWithInterceptors.delete(
-        `${BASE_URL}/content/${fileId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
-      );
+      await apiWithInterceptors.delete(`${BASE_URL}/content/${fileId}`, {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
       setFiles(files.filter((file) => file.id !== fileId));
       handleCloseFile();
       fetchData();
@@ -192,14 +189,11 @@ const CloudDashboard: React.FC = () => {
         const accessToken = localStorage.getItem("access_token");
         const userId = JSON.parse(atob(accessToken!.split(".")[1])).userId;
 
-        await apiWithInterceptors.delete(
-          `${BASE_URL}/user/${userId}`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        );
+        await apiWithInterceptors.delete(`${BASE_URL}/user/${userId}`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        });
 
         localStorage.removeItem("access_token");
         localStorage.removeItem("refresh_token");
@@ -214,7 +208,7 @@ const CloudDashboard: React.FC = () => {
   return (
     <div className="cloud-dashboard">
       <header className="header">
-        <h1>Cloud Dashboard</h1>
+        <h1>Wizz Cloud</h1>
         <p>Welcome, {nickname}!</p>
         {error && <p className="error">{error}</p>}
         <div
@@ -238,6 +232,10 @@ const CloudDashboard: React.FC = () => {
           <span>Upload File</span>
         </label>
         <input id="file-upload" type="file" onChange={handleFileSelect} />
+        <div className="upload-info">
+          <p>Max size: 20MB</p>
+          <p>Supported types: JPEG, PNG, MP4, MPEG, Quicktime(MOV), MP3, WAV</p>
+        </div>
       </div>
       {fileToUpload && (
         <div className="file-upload-actions">

@@ -25,33 +25,45 @@
 
 .upload-section {
   display: flex;
+  flex-direction: column;
   align-items: center;
   margin-bottom: 20px;
-}
 
-.custom-file-upload {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: #007bff;
-  color: white;
-  padding: 10px 20px;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: background-color 0.3s;
-  width: 130px;
-}
+  .custom-file-upload {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #007bff;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 130px;
 
-.custom-file-upload:hover {
-  background-color: #0056b3;
-}
+    &:hover {
+      background-color: #0056b3;
+    }
 
-.custom-file-upload img {
-  width: 30px;
-}
+    img {
+      width: 30px;
+    }
+  }
 
-#file-upload {
-  display: none;
+  #file-upload {
+    display: none;
+  }
+
+  .upload-info {
+    margin-top: 8px;
+    font-size: 0.9rem;
+    color: #555;
+    text-align: center;
+
+    p {
+      margin: 4px 0;
+    }
+  }
 }
 
 .file-upload-actions {
@@ -121,7 +133,6 @@
 }
 
 .gallery-item-actions img {
-  width: 24px;
   height: 24px;
   cursor: pointer;
 }
@@ -184,7 +195,7 @@
 .modal-actions img {
   width: 40px;
   height: 40px;
-  cursor: pointer;  
+  cursor: pointer;
 }
 
 .hamburger-menu {
