@@ -16,14 +16,15 @@ const SignUp: React.FC = () => {
   const handleSignUp = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       await signUp(fullName, email, password);
       setIsVerificationStep(true);
     } catch (err: any) {
-      if (err.response && err.response.status === 400) {
-        setError('User with this email already exists');
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
       } else {
-        setError(err.message || "registration error");
+        setError("Registration error");
       }
     } finally {
       setIsLoading(false);
@@ -33,6 +34,7 @@ const SignUp: React.FC = () => {
   const handleVerifyEmail = async (event: React.FormEvent) => {
     event.preventDefault();
     setIsLoading(true);
+    setError("");
     try {
       const deviceId = getDeviceId();
       const response = await verifyEmail(email, verificationCode, deviceId);
@@ -51,7 +53,11 @@ const SignUp: React.FC = () => {
 
       navigate("/dashboard");
     } catch (err: any) {
-      setError(err.message || "verification error");
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Verification error");
+      }
     } finally {
       setIsLoading(false);
     }

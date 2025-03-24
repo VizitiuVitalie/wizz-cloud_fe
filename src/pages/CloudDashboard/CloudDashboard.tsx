@@ -234,7 +234,7 @@ const CloudDashboard: React.FC = () => {
         <input id="file-upload" type="file" onChange={handleFileSelect} />
         <div className="upload-info">
           <p>Max size: 20MB</p>
-          <p>Supported types: JPEG, PNG, MP4, MPEG, Quicktime(MOV), MP3, WAV</p>
+          <p>Supported types: JPEG, PNG, HEIC, HEIF, GIF, MP4, MPEG, Quicktime(MOV), MP3, WAV</p>
         </div>
       </div>
       {fileToUpload && (
