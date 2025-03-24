@@ -1,17 +1,22 @@
-import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignIn from "./pages/SignIn/SignIn";
-import SignUp from "./pages/SignUp/SignUp";
-import CloudDashboard from "./pages/CloudDashboard/CloudDashboard";
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import SignUp from './pages/SignUp/SignUp';
+import SignIn from './pages/SignIn/SignIn';
+import Dashboard from './pages/CloudDashboard/CloudDashboard';
 
-const App: React.FC = () => (
-  <Router>
-    <Routes>
-      <Route path="/signin" element={<SignIn />} />
-      <Route path="/signup" element={<SignUp />} />
-      <Route path="/dashboard" element={<CloudDashboard />} />
-    </Routes>
-  </Router>
-);
+function App() {
+  const isAuthenticated = !!localStorage.getItem('access_token');
+
+  return (
+    <Router>
+      <Routes>
+        {}
+        <Route path="/" element={<Navigate to={isAuthenticated ? "/dashboard" : "/signup"} />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signin" element={<SignIn />} />
+        <Route path="/dashboard" element={<Dashboard />} />
+      </Routes>
+    </Router>
+  );
+}
 
 export default App;
