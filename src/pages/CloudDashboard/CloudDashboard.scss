@@ -1,0 +1,199 @@
+.cloud-dashboard {
+  padding: 20px;
+  background-color: #f9f9f9;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.header {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fff;
+  padding: 10px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 20px;
+}
+
+.error {
+  color: red;
+  margin-top: 10px;
+}
+
+.upload-section {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.custom-file-upload {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background-color: #007bff;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: 130px;
+}
+
+.custom-file-upload:hover {
+  background-color: #0056b3;
+}
+
+.custom-file-upload img {
+  width: 30px;
+}
+
+#file-upload {
+  display: none;
+}
+
+.file-upload-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.gallery {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.gallery-item {
+  position: relative;
+  background-color: #fff;
+  border-radius: 5px;
+  overflow: hidden;
+  box-shadow: 0 8px 12px rgba(0, 0, 0, 0.3);
+  transition: transform 0.3s;
+}
+
+.gallery-item:hover {
+  transform: scale(1.05);
+}
+
+.gallery-item img {
+  width: 100%;
+  cursor: pointer;
+}
+
+.gallery-item-actions {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  display: flex;
+  gap: 5px;
+  cursor: pointer;
+}
+
+.gallery-item-actions button {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.gallery-item-actions img {
+  width: 24px;
+  height: 24px;
+  cursor: pointer;
+}
+
+.gallery-item-actions img:hover {
+  transform: scale(1.2);
+}
+
+.modal {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+}
+
+.modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.close {
+  position: absolute;
+  z-index: 1001;
+  top: 10px;
+  right: 20px;
+  color: white;
+  font-size: 30px;
+  cursor: pointer;
+}
+
+.modal-actions {
+  position: absolute;
+  bottom: 20px;
+  display: flex;
+  gap: 10px;
+}
+
+.modal-actions button {
+  background: none;
+  border: none;
+}
+
+.modal-actions button:hover {
+  transform: scale(1.2);
+}
+
+.modal-actions img {
+  width: 40px;
+  height: 40px;
+  cursor: pointer;  
+}
+
+.hamburger-menu {
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  width: 30px;
+  z-index: 999;
+}
+
+.line {
+  width: 100%;
+  height: 4px;
+  background-color: #333;
+  border-radius: 2px;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: 90px;
+  right: 15px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 999;
+}
+
+.dropdown-menu button {
+  cursor: pointer;
+}
